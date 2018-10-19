@@ -45,12 +45,14 @@ class Board extends React.Component {
 class Game extends React.Component {
   constructor(props) {
     super(props);
+    var clickedSquareIds = [];
     this.state = {
       history: [{
         squares: Array(9).fill(null)
       }],
       stepNumber: 0,
-      xIsNext: true
+      xIsNext: true,
+      clickedSquareIds: clickedSquareIds
     };
   }
 
@@ -58,6 +60,9 @@ class Game extends React.Component {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
+    let clickedSquareIds = this.state.clickedSquareIds.slice();
+    clickedSquareIds[this.state.stepNumber + 1] = i;
+
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
@@ -67,7 +72,8 @@ class Game extends React.Component {
         squares: squares
       }]),
       stepNumber: history.length,
-      xIsNext: !this.state.xIsNext
+      xIsNext: !this.state.xIsNext,
+      clickedSquareIds: clickedSquareIds
     });
   }
 
@@ -78,18 +84,68 @@ class Game extends React.Component {
     });
   }
 
+  getCoordinates(squareId) {
+    if (squareId == null) {
+      return null;
+    }
+
+    let coordinateRow;
+    let coordinateColumn;
+
+    if (squareId === 0) {
+      coordinateRow = 1;
+      coordinateColumn = 1;
+    }
+    if (squareId === 1) {
+      coordinateRow = 1;
+      coordinateColumn = 2;
+    }
+    if (squareId === 2) {
+      coordinateRow = 1;
+      coordinateColumn = 3;
+    }
+    if (squareId === 3) {
+      coordinateRow = 2;
+      coordinateColumn = 1;
+    }
+    if (squareId === 4) {
+      coordinateRow = 2;
+      coordinateColumn = 2;
+    }
+    if (squareId === 5) {
+      coordinateRow = 2;
+      coordinateColumn = 3;
+    }
+    if (squareId === 6) {
+      coordinateRow = 3;
+      coordinateColumn = 1;
+    }
+    if (squareId === 7) {
+      coordinateRow = 3;
+      coordinateColumn = 2;
+    }
+    if (squareId === 8) {
+      coordinateRow = 3;
+      coordinateColumn = 3;
+    }
+
+    return 'coordinates : row ' + coordinateRow + ' ; column ' + coordinateColumn;
+  }
+
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
 
     const moves = history.map((step, move) => {
+      const squareId = this.state.clickedSquareIds[move];
       const desc = move ?
         'Go to move #' + move :
         'Go to game start';
       return (
         <li key={move}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
+          <span>{this.getCoordinates(squareId)}</span>
         </li>
       );
     });
